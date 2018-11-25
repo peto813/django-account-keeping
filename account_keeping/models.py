@@ -63,6 +63,7 @@ class Account(models.Model):
         'currency_history.Currency',
         related_name='accounts',
         verbose_name=_('Currency'),
+        on_delete = models.PROTECT
     )
 
     initial_amount = models.DecimalField(
@@ -153,6 +154,7 @@ class Invoice(AmountMixin, models.Model):
         'currency_history.Currency',
         related_name='invoices',
         verbose_name=_('Currency'),
+        on_delete = models.PROTECT
     )
 
     amount_net = models.DecimalField(
@@ -325,6 +327,7 @@ class Transaction(AmountMixin, models.Model):
         Account,
         related_name='transactions',
         verbose_name=_('Account'),
+        on_delete = models.CASCADE
     )
 
     parent = models.ForeignKey(
@@ -332,6 +335,7 @@ class Transaction(AmountMixin, models.Model):
         related_name='children',
         blank=True, null=True,
         verbose_name=_('Parent'),
+       on_delete = models.CASCADE 
     )
 
     transaction_type = models.CharField(
@@ -360,24 +364,28 @@ class Transaction(AmountMixin, models.Model):
         blank=True, null=True,
         related_name='transactions',
         verbose_name=_('Invoice'),
+        on_delete = models.PROTECT
     )
 
     payee = models.ForeignKey(
         Payee,
         related_name='transactions',
         verbose_name=_('Payee'),
+        on_delete = models.PROTECT
     )
 
     category = models.ForeignKey(
         Category,
         related_name='transactions',
         verbose_name=_('Category'),
+        on_delete = models.PROTECT
     )
 
     currency = models.ForeignKey(
         'currency_history.Currency',
         related_name='transactions',
         verbose_name=_('Currency'),
+        on_delete = models.PROTECT
     )
 
     amount_net = models.DecimalField(
