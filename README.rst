@@ -6,17 +6,7 @@ A reusable Django app for keeping track of transactions in your bank accounts.
 Installation
 ------------
 
-To get the latest stable release from PyPi
-
-.. code-block:: bash
-
-    pip install django-account-keeping
-
-To get the latest commit from GitHub
-
-.. code-block:: bash
-
-    pip install -e git+git://github.com/bitmazk/django-account-keeping.git#egg=account_keeping
+pip install -e git+https://github.com/peto813/django-account-keeping.git#egg=account_keeping
 
 
 Add all relevant apps to your ``INSTALLED_APPS``
