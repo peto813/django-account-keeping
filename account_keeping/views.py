@@ -4,7 +4,7 @@ from datetime import date
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.db import connection
 from django.db.models import Q, Sum
 from django.http import HttpResponse
@@ -20,6 +20,7 @@ from dateutil import relativedelta
 from . import forms
 from . import models
 from . import utils
+from . import model_resources
 from .freckle_api import get_unpaid_invoices_with_transactions
 from .utils import get_date as d
 
@@ -722,7 +723,7 @@ class TransactionExportView(LoginRequiredMixin, generic.FormView):
         return kwargs
 
     def form_valid(self, form):
-        dataset = models.TransactionResource().export(
+        dataset = model_resources.TransactionResource().export(
             queryset=models.Transaction.objects.filter(
                 transaction_date__gte=form.cleaned_data['start'],
                 transaction_date__lte=form.cleaned_data['end'],
