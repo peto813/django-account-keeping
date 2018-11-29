@@ -13,7 +13,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from currency_history.models import Currency, CurrencyRateHistory
 from dateutil import relativedelta
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
 
 class AmountMixin(object):
     """
@@ -47,6 +49,10 @@ class AmountMixin(object):
 
 @python_2_unicode_compatible
 class Account(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bank_accounts", null= True)
+    account_number= models.CharField(max_length=25, null= False, blank= False)
+    routing_number = models.CharField(max_length=25, null= True, blank= True)
+
     name = models.CharField(
         max_length=128,
         verbose_name=_('Name'),

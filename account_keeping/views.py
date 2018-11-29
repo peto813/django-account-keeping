@@ -16,6 +16,7 @@ from django.views import generic
 
 from currency_history.models import Currency, CurrencyRateHistory
 from dateutil import relativedelta
+from rest_framework import mixins, viewsets
 
 from . import forms
 from . import models
@@ -24,9 +25,20 @@ from . import model_resources
 from .freckle_api import get_unpaid_invoices_with_transactions
 from .utils import get_date as d
 
-
+from . serializers import AccountSerializer
 DEPOSIT = models.Transaction.TRANSACTION_TYPES['deposit']
 WITHDRAWAL = models.Transaction.TRANSACTION_TYPES['withdrawal']
+from condo_manager.permissions import CondoOnly
+from .permissions import IsBankAccountOwner
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from condo_manager.models import Condo
+
+class CreateListRetrieveViewSet(mixins.CreateModelMixin,
+                                mixins.ListModelMixin,
+                                mixins.RetrieveModelMixin,
+                                viewsets.GenericViewSet):
+    pass
+
 
 
 class LoginRequiredMixin(object):
@@ -34,6 +46,30 @@ class LoginRequiredMixin(object):
     def dispatch(self, request, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(
             request, *args, **kwargs)
+
+class BankAccountsViewSet(CreateListRetrieveViewSet, mixins.DestroyModelMixin):
+    queryset = models.Account.objects.all()
+    serializer_class = AccountSerializer
+    permission_classes= (IsAuthenticated, CondoOnly, IsBankAccountOwner,)
+
+    def get_queryset(self):
+        return self.queryset.filter(user= self.request.user)
+
+    def get_condo_or_404(self, condo_id):
+        condo= get_object_or_404(Condo, pk= condo_id)
+        return condo
+
+    def perform_create(self, serializer):
+        self.condo.create_bank_account(serializer.validated_data)
+
+    def create(self, request, condo_id=None,*args, **kwargs):
+        self.condo = self.get_condo_or_404(condo_id)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+ 
 
 
 class AccountsViewMixin(object):
