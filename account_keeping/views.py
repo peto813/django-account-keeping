@@ -32,6 +32,9 @@ from condo_manager.permissions import CondoOnly
 from .permissions import IsBankAccountOwner
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from condo_manager.models import Condo
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response
+from rest_framework import status
 
 class CreateListRetrieveViewSet(mixins.CreateModelMixin,
                                 mixins.ListModelMixin,
@@ -60,7 +63,7 @@ class BankAccountsViewSet(CreateListRetrieveViewSet, mixins.DestroyModelMixin):
         return condo
 
     def perform_create(self, serializer):
-        self.condo.create_bank_account(serializer.validated_data)
+        self.request.user.condo.create_bank_account(serializer.validated_data)
 
     def create(self, request, condo_id=None,*args, **kwargs):
         self.condo = self.get_condo_or_404(condo_id)
